@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f6f8f7">
+  <title>幾何陰影面積｜觸控拼圖教具</title>
+  <style>
+    :root{font-family:"Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif;color:#233249;background:#f4f7f7;--green:#167855;--orange:#f29a27;--line:#dce4e8;--muted:#667789}
+    *{box-sizing:border-box}button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible{outline:3px solid #f7a53c;outline-offset:3px}
+    body{margin:0;overflow:hidden}#app{width:100%;height:100vh;height:100dvh;display:flex;flex-direction:column;min-height:0}
+    header{min-height:74px;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-bottom:1px solid var(--line);flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}.logo{width:48px;height:48px;display:grid;place-items:center;border-radius:13px;background:#e9f5ec;font-size:27px;flex-shrink:0}
+    h1{font-size:24px;line-height:1.24;margin:0;font-weight:800;letter-spacing:.4px}.subtitle{font-size:13px;color:var(--muted);margin-top:5px}
+    .header-actions,.row-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+    .btn{border:1.5px solid #d6e0e4;border-radius:12px;background:white;color:#223244;font-size:15px;font-weight:700;padding:11px 15px;line-height:1.25;min-height:44px;transition:background .15s,border-color .15s;white-space:nowrap}
+    .btn:hover{background:#f1f6f5}.btn:active{transform:translateY(1px)}.btn.primary{background:#167855;border-color:#167855;color:white}.btn.primary:hover{background:#0b6646}.btn.orange{background:#f9ad41;border-color:#f9ad41;color:#39240d}.btn.soft{background:#f4f8f5}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .lessonbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 18px;background:#fbfcfd;border-bottom:1px solid var(--line);flex-shrink:0}
+    .lesson-tabs{display:flex;gap:7px;align-items:center;min-width:0}.tab{background:white;border:2px solid #e0e7e9;border-radius:12px;padding:10px 15px;min-height:47px;font-size:16px;font-weight:750;color:#4c5c6b}.tab[aria-selected="true"]{border-color:#168259;background:#e9f8ee;color:#126646}.tab .num{background:#eef2f3;border-radius:50%;width:23px;height:23px;display:inline-grid;place-items:center;font-size:13px;margin-right:4px}
+    main{flex:1;min-height:0;display:grid;grid-template-columns:260px minmax(0,1fr) 296px;gap:12px;padding:12px}
+    aside,.stage-wrap{min-height:0}.panel{height:100%;background:white;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 2px 12px #172b3c06;overflow:auto;overscroll-behavior:contain}
+    .panel h2{font-size:20px;margin:0 0 14px}.panel h3{font-size:16px;margin:16px 0 10px}.small{font-size:13px;color:var(--muted);line-height:1.6}.task-name{font-size:23px;font-weight:850;color:#193e36;margin:10px 0 12px;line-height:1.4}.eyebrow{font-size:13px;letter-spacing:.6px;font-weight:800;color:var(--green)}
+    .task-desc{font-size:16px;line-height:1.75}.instr{margin:16px 0 0;padding-left:22px;font-size:15px;line-height:2.0}.instr li::marker{color:var(--green);font-weight:800}
+    .progress-head{display:flex;align-items:center;justify-content:space-between;margin-top:23px;font-weight:800;font-size:16px}.progress-head strong{font-size:20px;color:#168259}.progress-track{height:12px;background:#eaf0ee;border-radius:99px;margin-top:11px;overflow:hidden}.progress-fill{height:100%;width:0;background:#37a274;border-radius:99px;transition:width .2s}
+    .notice{background:#f4f9f5;border:1px solid #d9ebde;border-radius:13px;padding:12px 13px;margin-top:16px;line-height:1.7;font-size:14px}.notice strong{color:#126746}.checkbox-row{display:flex;align-items:center;gap:10px;margin-top:15px;font-size:15px;cursor:pointer}.checkbox-row input{width:21px;height:21px;accent-color:var(--green)}
+    .stage-wrap{min-width:0;display:flex;flex-direction:column;gap:8px}.board{background:white;border:1px solid var(--line);border-radius:17px;min-height:0;flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;box-shadow:0 2px 12px #172b3c06}
+    .board svg{display:block;width:100%;height:100%;max-height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
+    .board-meta{position:absolute;top:15px;left:18px;z-index:1;background:#fffdf2e8;border:1px solid #f3e0ad;border-radius:8px;font-size:14px;font-weight:750;color:#8c6518;padding:7px 10px;pointer-events:none}
+    .piece{cursor:grab;touch-action:none}.piece:active{cursor:grabbing}.piece .shape{stroke:#435468;stroke-width:2.2;stroke-linejoin:round}.piece.selected .shape{stroke:#e17e0c;stroke-width:4.8;filter:drop-shadow(1px 3px 3px #9c6c3d35)}.piece.snapped .shape{stroke:#168259;stroke-width:3.3}.piece.selected.snapped .shape{stroke:#e17e0c;stroke-width:4.8}
+    .piece .hatch{pointer-events:none;opacity:.38}.piece .handle{fill:white;stroke:#617386;stroke-width:1.4}.piece.selected .handle{fill:#ffefcd;stroke:#da8618}.piece text{pointer-events:none;font-weight:850;font-size:18px;fill:#324154;text-anchor:middle;dominant-baseline:middle}
+    .piece .hit{fill:transparent;stroke:transparent;stroke-width:24;pointer-events:all}
+    .underbar{border:1px solid var(--line);background:white;border-radius:13px;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;flex-shrink:0}
+    .underbar span{font-size:14px;color:#667586;line-height:1.4}.underbar .btn{min-height:43px;padding:10px 14px}
+    .right-title{display:flex;justify-content:space-between;align-items:center;gap:8px}.selected-chip{font-size:13px;border-radius:8px;padding:6px 8px;background:#f2f4f6;color:#4f6172;font-weight:800;white-space:nowrap}
+    .control-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.control-grid .btn{font-size:16px;min-height:51px;padding:10px 5px}.control-grid .span2{grid-column:span 2}.settings{border-top:1px solid #e4eaeb;margin-top:18px;padding-top:16px}
+    .range-top{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:750}.value-pill{background:#e7f6ed;color:#116743;padding:6px 10px;border-radius:9px;font-variant-numeric:tabular-nums}.range{width:100%;accent-color:#168259;margin:18px 0 3px;height:20px;cursor:pointer}
+    .answer-wrap{border-top:1px solid #e4eaeb;margin-top:17px;padding-top:17px}.answer-placeholder{background:#f7f9f8;border:1px dashed #cddad6;border-radius:12px;text-align:center;padding:20px 9px;font-size:15px;color:#718078;line-height:1.65;margin:11px 0}.math-steps{background:#f3f9f5;padding:12px 13px;border-radius:12px;margin-top:13px;font-size:15px;line-height:1.75}.math-steps p{margin:7px 0}.math-steps .math-result{font-size:20px;color:#0d754f;font-weight:850}.math-steps .math-note{font-size:13px;color:#5d6e65}.status{font-size:14px;color:#536b5a;line-height:1.5;margin-top:12px;min-height:42px}
+    .tag{display:inline-block;border-radius:8px;padding:5px 9px;background:#fff1d9;color:#925a0e;font-weight:800;font-size:12px}.divider{height:1px;background:#e6ecee;margin:18px 0}
+    .toast{position:fixed;z-index:99;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);background:#213e34;color:white;padding:13px 22px;border-radius:12px;box-shadow:0 8px 20px #162c2744;font-weight:800;font-size:16px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .modal-backdrop{position:fixed;inset:0;z-index:200;background:#142c38aa;display:flex;align-items:center;justify-content:center;padding:18px}.modal{width:min(640px,95vw);max-height:90vh;overflow:auto;background:white;border-radius:20px;padding:27px;box-shadow:0 12px 60px #11232c33}.modal h2{font-size:26px;margin:0 0 14px}.modal p,.modal li{line-height:1.8;font-size:17px}.modal ol{padding-left:26px}.modal-buttons{display:flex;justify-content:flex-end;margin-top:19px}
+    .hidden{display:none!important}
+    @media(max-width:1230px){main{grid-template-columns:224px minmax(0,1fr) 255px;gap:8px;padding:8px}.panel{padding:13px}.tab{font-size:14px;padding:8px 10px}.btn{padding:10px 12px}.task-name{font-size:20px}header{min-height:65px;padding:10px 15px}h1{font-size:20px}}
+    @media(max-width:970px){main{grid-template-columns:1fr 260px;grid-template-rows:minmax(410px,1fr) auto}.left-panel{grid-column:1/-1;grid-row:2}.left-panel .panel{display:none}.stage-wrap{grid-column:1;grid-row:1}.right-panel{grid-column:2;grid-row:1}.board{min-height:390px}.lesson-tabs{flex-wrap:wrap}.header-actions .btn:first-child{display:none}}
+    @media(max-width:690px){body{overflow:auto}#app{height:auto;min-height:100dvh}header{flex-wrap:wrap;padding:12px}.subtitle{font-size:12px}h1{font-size:19px}.logo{width:39px;height:39px}.lessonbar{padding:8px 9px;flex-wrap:wrap}.lesson-tabs{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}.tab{font-size:12px;padding:7px 4px;line-height:1.35;min-height:54px}.tab .num{display:none}main{display:flex;flex-direction:column;padding:7px;gap:9px}.stage-wrap{order:0}.board{height:52vh;min-height:310px;max-height:520px;flex:none}.right-panel{order:1}.right-panel .panel{height:auto;overflow:visible}.left-panel{order:2}.left-panel .panel{display:block;height:auto}.control-grid{grid-template-columns:repeat(4,1fr)}.control-grid .span2{grid-column:span 2}.underbar{flex-wrap:wrap}.panel h2{margin-bottom:8px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><div class="logo" aria-hidden="true">◩</div><div><h1>幾何陰影面積｜觸控拼圖教具</h1><div class="subtitle">像移動紙片一樣，親手發現圖形面積的祕密 · 離線可用</div></div></div>
+    <div class="header-actions"><button id="helpBtn" class="btn" type="button">？ 操作說明</button><button id="fullscreenBtn" class="btn primary" type="button">⛶ 全螢幕教學</button></div>
+  </header>
+  <nav class="lessonbar" aria-label="選擇教學關卡">
+    <div class="lesson-tabs" role="tablist" aria-label="選擇幾何圖形">
+      <button class="tab" role="tab" type="button" data-mode="circle" aria-selected="true"><span class="num">1</span>圓內陰影</button>
+      <button class="tab" role="tab" type="button" data-mode="corners" aria-selected="false"><span class="num">2</span>四角陰影</button>
+      <button class="tab" role="tab" type="button" data-mode="triangles" aria-selected="false"><span class="num">3</span>三角形拼組</button>
+    </div>
+    <div class="row-actions"><button id="scatterBtn" class="btn" type="button">↺ 重置紙片</button><button id="demoBtn" class="btn orange" type="button">▶ 示範拼排</button></div>
+  </nav>
+  <main>
+    <aside class="left-panel"><section class="panel" aria-label="課堂任務">
+      <div class="eyebrow" id="lessonIndex">第 1 關 / 共 3 關</div>
+      <div class="task-name" id="taskName">圓內的 4 片陰影</div>
+      <div class="task-desc" id="taskDesc">把圓形裡的 4 片弓形移到右側，找出它們面積的關係。</div>
+      <h3>學生操作步驟</h3>
+      <ol class="instr"><li>用手指拖曳左側陰影紙片。</li><li>移到右側對應的虛線圖形。</li><li>點選紙片，按旋轉鍵調整方向。</li><li>完成 4 片後，試著計算陰影面積。</li></ol>
+      <div class="progress-head"><span>拼排進度</span><strong id="progressText">0 / 4</strong></div><div class="progress-track" aria-label="拼排進度"><div id="progressFill" class="progress-fill"></div></div>
+      <div class="notice"><strong>教學提問</strong><div id="teacherTip">四塊彎彎的陰影大小一樣嗎？把它們排成相同方向來比較。</div></div>
+      <label class="checkbox-row"><input type="checkbox" id="gridToggle">顯示操作區參考格線</label>
+      <div class="small" style="margin-top:18px">適用 Windows 電子白板、觸控螢幕、iPad 與一般電腦瀏覽器；滑鼠也能操作。</div>
+    </section></aside>
+    <section class="stage-wrap" aria-label="觸控拼圖操作區">
+      <div class="board">
+        <div class="board-meta">拖曳陰影圖形到右邊的虛線框</div>
+        <svg id="board" viewBox="0 0 1080 650" role="group" aria-label="可拖曳的幾何陰影紙片與四個對照目標" preserveAspectRatio="xMidYMid meet">
+          <defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#ffffff" stroke-width="3"/></pattern>
+          <pattern id="gridpattern" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="#cedbd6" stroke-width="1"/></pattern>
+          </defs>
+          <g id="baseLayer"></g><g id="targetLayer"></g><g id="pieceLayer"></g><g id="labelLayer"></g>
+        </svg>
+      </div>
+      <div class="underbar"><span id="boardStatus" aria-live="polite">選擇任一陰影紙片，開始用手指拖曳。</span><div class="row-actions"><button type="button" id="quickLeft" class="btn">↶ 左轉 90°</button><button type="button" id="quickRight" class="btn">↷ 右轉 90°</button></div></div>
+    </section>
+    <aside class="right-panel"><section class="panel" aria-label="操作工具與面積說明">
+      <div class="right-title"><h2>紙片操作</h2><span class="selected-chip" id="selectedChip">尚未選取</span></div>
+      <div class="control-grid"><button class="btn" id="rotateLeft" type="button">↶ 左轉 90°</button><button class="btn" id="rotateRight" type="button">↷ 右轉 90°</button><button class="btn" id="flipBtn" type="button">⇋ 左右翻轉</button><button class="btn" id="homeBtn" type="button">⌂ 放回原處</button></div>
+      <div class="settings"><div class="range-top"><span>設定圓的半徑</span><span class="value-pill" id="radiusValue">6 cm</span></div><input aria-label="圓的半徑，單位公分" id="radiusSlider" class="range" type="range" min="2" max="10" step="1" value="6"><div class="small">正方形邊長 = 半徑 × 2；滑動時會同步改變圖形及面積。</div></div>
+      <div class="answer-wrap"><div class="right-title"><h2 style="margin:0">面積計算</h2><span class="tag">π ≈ 3.14</span></div>
+        <p class="small" id="knownValues">已知：半徑 6 cm，正方形邊長 12 cm。</p>
+        <button type="button" id="answerBtn" class="btn primary" style="width:100%">顯示面積解答</button>
+        <div id="answerPlaceholder" class="answer-placeholder">先觀察、移動和比較圖形，<br>再按上方按鈕揭曉計算方法。</div>
+        <div id="answerContent" class="math-steps hidden" aria-live="polite"></div>
+      </div>
+      <div id="selectedStatus" class="status">點一下紙片，再使用旋轉或翻轉按鈕。</div>
+    </section></aside>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="helpModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><section class="modal">
+  <h2 id="helpTitle">觸控拼圖操作說明</h2>
+  <p>這是一套可以離線操作的數位紙片教材。左側是原始幾何圖，右側有 4 個相同方向的目標輪廓。</p>
+  <ol><li>用手指或滑鼠按住彩色陰影，直接拖曳到右側。</li><li>點選紙片，使用「左轉／右轉 90°」讓它和虛線輪廓同方向；必要時可使用「左右翻轉」。</li><li>接近正確位置、方向相符時，會自動吸附並出現綠色邊框。</li><li>可調整半徑、切換三種題型、隱藏或顯示面積答案。</li><li>點「示範拼排」可一鍵展示；點「重置紙片」讓學生重新挑戰。</li></ol>
+  <p class="small">課堂建議：先不顯示答案，讓學生觀察「4 塊是否全等」，再利用大圖減小圖計算陰影面積。鍵盤可使用 ← → 旋轉、Delete 放回、Esc 取消選取。</p>
+  <div class="modal-buttons"><button class="btn primary" id="closeHelp" type="button">開始操作</button></div>
+</section></div>
+<script>
+(() => {
+  'use strict';
+  const NS='http://www.w3.org/2000/svg';
+  const svg=document.getElementById('board');
+  const $=id=>document.getElementById(id);
+  const baseLayer=$('baseLayer'),targetLayer=$('targetLayer'),pieceLayer=$('pieceLayer'),labelLayer=$('labelLayer');
+  const CENTER={x:265,y:323};
+  const SLOTS=[{x:648,y:236},{x:858,y:236},{x:648,y:444},{x:858,y:444}];
+  const COLORS=['#f9d588','#9ddfc8','#a9cbee','#e0bce8'];
+  const MODES={
+    circle:{title:'圓內的 4 片陰影',desc:'把圓內、菱形外的 4 片弓形移到右側，觀察四片是不是全等。',tip:'圓與菱形之間的 4 塊陰影面積一樣嗎？整個陰影 = 圓面積 − 菱形面積。',short:'圓內陰影'},
+    corners:{title:'正方形的 4 個角',desc:'取出正方形內、圓形外的 4 塊角落陰影，看看如何計算總面積。',tip:'四個角都是同樣大小的圖形嗎？整個陰影 = 正方形面積 − 圓面積。',short:'四角陰影'},
+    triangles:{title:'三角形與菱形',desc:'移動菱形外面的 4 個直角三角形，發現正方形和菱形的面積關係。',tip:'菱形是由正方形各邊中點連成的，菱形面積占正方形的多少？',short:'三角形拼組'}
+  };
+  let mode='circle',radius=6,visualR=130,pieces=[],selected=null,showGrid=false,answerOpen=false,drag=null,toastTimer;
+  const sNum=n=>Number(n.toFixed(2)).toLocaleString('en-US',{maximumFractionDigits:2});
+  const rad=d=>d*Math.PI/180;
+  const normDeg=d=>((d%360)+360)%360;
+  const nearZero=d=>Math.min(normDeg(d),360-normDeg(d))<12;
+  const qFor=m=>m==='circle'?{x:visualR*0.584,y:-visualR*0.584}:m==='corners'?{x:-visualR*0.776,y:-visualR*0.776}:{x:-visualR*2/3,y:-visualR*2/3};
+  function rotatePoint(v,degree){const a=rad(degree);return{x:v.x*Math.cos(a)-v.y*Math.sin(a),y:v.x*Math.sin(a)+v.y*Math.cos(a)};}
+  function createSvg(tag,attributes={},parent=null){const element=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attributes))element.setAttribute(k,String(v));if(parent)parent.appendChild(element);return element;}
+  function label(parent,x,y,text,opts={}){const t=createSvg('text',{x,y,'font-family':'Microsoft JhengHei, Noto Sans TC, sans-serif','font-size':opts.size||21,'font-weight':opts.weight||750,fill:opts.color||'#334155','text-anchor':opts.anchor||'middle'},parent);t.textContent=text;return t;}
+  function pathData(m){const r=visualR,q=qFor(m);if(m==='circle'){
+      const a={x:-q.x,y:-r-q.y},b={x:r-q.x,y:-q.y};
+      return `M ${a.x} ${a.y} A ${r} ${r} 0 0 1 ${b.x} ${b.y} L ${a.x} ${a.y} Z`;
+    }
+    const a={x:-r-q.x,y:-r-q.y},b={x:-q.x,y:-r-q.y},c={x:-r-q.x,y:-q.y};
+    if(m==='corners')return `M ${a.x} ${a.y} L ${b.x} ${b.y} A ${r} ${r} 0 0 0 ${c.x} ${c.y} Z`;
+    return `M ${a.x} ${a.y} L ${b.x} ${b.y} L ${c.x} ${c.y} Z`;
+  }
+  function sourcePosition(i){const q=rotatePoint(qFor(mode),i*90);return {x:CENTER.x+q.x,y:CENTER.y+q.y,rot:i*90};}
+  function setPieces(){pieces=Array.from({length:4},(_,i)=>({id:i,...sourcePosition(i),flip:false,snapped:-1,node:null}));selected=null;drag=null;}
+  function drawStatic(){
+    baseLayer.replaceChildren();targetLayer.replaceChildren();labelLayer.replaceChildren();
+    const R=visualR,C=CENTER;const x=C.x,y=C.y;
+    createSvg('rect',{x:0,y:0,width:1080,height:650,fill:'#fff'},baseLayer);
+    createSvg('rect',{x:42,y:103,width:448,height:468,rx:20,fill:'#f7f9fb',stroke:'#e5ebf0','stroke-width':2},baseLayer);
+    createSvg('rect',{x:525,y:103,width:529,height:468,rx:20,fill:'#fafcfb',stroke:'#e5ece8','stroke-width':2},targetLayer);
+    if(showGrid)createSvg('rect',{x:535,y:115,width:508,height:446,rx:12,fill:'url(#gridpattern)',opacity:.72},targetLayer);
+    label(labelLayer,252,79,'① 原始圖形',{size:25,color:'#244536'});
+    label(labelLayer,790,79,'② 把 4 塊紙片拼到這裡',{size:25,color:'#244536'});
+    // Draw a 2r square with an inscribed circle / diamond. All geometry scales with radius.
+    createSvg('rect',{x:x-R,y:y-R,width:2*R,height:2*R,fill:'#fff',stroke:'#617488','stroke-width':2.5},baseLayer);
+    if(mode!=='triangles')createSvg('circle',{cx:x,cy:y,r:R,fill:'#ffffff',stroke:'#66798b','stroke-width':2.2},baseLayer);
+    const diamond=`${x},${y-R} ${x+R},${y} ${x},${y+R} ${x-R},${y}`;
+    if(mode==='circle'||mode==='triangles'){
+      createSvg('polygon',{points:diamond,fill:'#fff',stroke:'#63798c','stroke-width':2.2},baseLayer);
+      createSvg('line',{x1:x,y1:y-R,x2:x,y2:y+R,stroke:'#bed0d6','stroke-width':1.3},baseLayer);
+      createSvg('line',{x1:x-R,y1:y,x2:x+R,y2:y,stroke:'#bed0d6','stroke-width':1.3},baseLayer);
+    }
+    if(mode==='corners')createSvg('circle',{cx:x,cy:y,r:R,fill:'none',stroke:'#728599','stroke-width':2.2},baseLayer);
+    const s=2*radius;
+    label(labelLayer,265,603,`r = ${radius} cm  ｜  正方形邊長 = ${s} cm`,{size:21,color:'#526576'});
+    label(labelLayer,792,601,'對準虛線輪廓即可吸附',{size:19,color:'#718073',weight:650});
+    for(let i=0;i<4;i++){
+      const slot=SLOTS[i];
+      createSvg('rect',{x:slot.x-88,y:slot.y-89,width:176,height:178,rx:18,fill:'#f5faf7',stroke:'#dbeae1','stroke-width':1.7},targetLayer);
+      const g=createSvg('g',{transform:`translate(${slot.x} ${slot.y})`},targetLayer);
+      createSvg('path',{d:pathData(mode),fill:'#e7f2ec',stroke:'#70aa8c','stroke-width':2.7,'stroke-dasharray':'9 8','stroke-linejoin':'round'},g);
+      const indexBg=createSvg('circle',{cx:slot.x-65,cy:slot.y-63,r:15,fill:'#dcece2'},labelLayer);
+      label(labelLayer,slot.x-65,slot.y-57,String(i+1),{size:15,color:'#28714e'});
+    }
+  }
+  function drawPieces(){pieceLayer.replaceChildren();for(const piece of pieces){
+      const g=createSvg('g',{'data-piece':piece.id,'class':'piece'},pieceLayer);piece.node=g;
+      createSvg('path',{d:pathData(mode),fill:COLORS[piece.id],'class':'shape'},g);
+      createSvg('path',{d:pathData(mode),fill:'url(#hatch)','class':'hatch'},g);
+      createSvg('path',{d:pathData(mode),'class':'hit'},g);
+      createSvg('circle',{cx:0,cy:0,r:16,'class':'handle'},g);
+      label(g,0,6,piece.id+1,{size:19,color:'#36485a'});
+      updatePiece(piece);
+    }
+  }
+  function updatePiece(p){if(!p.node)return;p.node.setAttribute('transform',`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${p.rot}) scale(${p.flip?-1:1} 1)`);p.node.classList.toggle('selected',selected===p.id);p.node.classList.toggle('snapped',p.snapped>=0);}
+  function updateAllPieces(){pieces.forEach(updatePiece);}
+  function showToast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
+  function updateUI(){
+    $('lessonIndex').textContent=`第 ${Object.keys(MODES).indexOf(mode)+1} 關 / 共 3 關`;
+    $('taskName').textContent=MODES[mode].title;$('taskDesc').textContent=MODES[mode].desc;$('teacherTip').textContent=MODES[mode].tip;
+    document.querySelectorAll('[data-mode]').forEach(el=>el.setAttribute('aria-selected',el.dataset.mode===mode?'true':'false'));
+    const count=pieces.filter(p=>p.snapped>=0).length;
+    $('progressText').textContent=`${count} / 4`;$('progressFill').style.width=`${count*25}%`;
+    $('selectedChip').textContent=selected===null?'尚未選取':`第 ${selected+1} 片`;
+    $('radiusValue').textContent=`${radius} cm`;$('knownValues').textContent=`已知：半徑 ${radius} cm，正方形邊長 ${2*radius} cm。`;
+    const active=selected!==null;
+    for(const id of ['rotateLeft','rotateRight','flipBtn','homeBtn','quickLeft','quickRight'])$(id).disabled=!active;
+    $('selectedStatus').textContent=active?`目前選取第 ${selected+1} 片。${pieces[selected].snapped>=0?'已吸附到目標輪廓。':'拖曳後可以旋轉或翻轉紙片。'}`:'點一下紙片，再使用旋轉或翻轉按鈕。';
+    $('boardStatus').textContent=count===4?'完成！4 片陰影都排列成功。試試看計算總面積。':selected!==null?`第 ${selected+1} 片已選取：拖曳到右側框，旋轉至相同方向即可吸附。`:'選擇任一陰影紙片，開始用手指拖曳。';
+    $('answerBtn').textContent=answerOpen?'隱藏面積解答':'顯示面積解答';
+    $('answerPlaceholder').classList.toggle('hidden',answerOpen);$('answerContent').classList.toggle('hidden',!answerOpen);
+    if(answerOpen)renderAnswer();
+  }
+  function renderAnswer(){const r=radius,r2=r*r,pi=3.14,circle=pi*r2,square=4*r2,diamond=2*r2;
+    const seg=mode==='circle'?circle-diamond:mode==='corners'?square-circle:square-diamond;
+    let steps='';
+    if(mode==='circle')steps=`<p>① 圓面積：<br>3.14 × ${r} × ${r} = <b>${sNum(circle)}</b> cm²</p><p>② 菱形面積（兩條對角線相乘 ÷ 2）：<br>${2*r} × ${2*r} ÷ 2 = <b>${sNum(diamond)}</b> cm²</p><p>③ 陰影 = 圓 − 菱形</p>`;
+    if(mode==='corners')steps=`<p>① 正方形面積：<br>${2*r} × ${2*r} = <b>${sNum(square)}</b> cm²</p><p>② 圓面積：<br>3.14 × ${r} × ${r} = <b>${sNum(circle)}</b> cm²</p><p>③ 陰影 = 正方形 − 圓</p>`;
+    if(mode==='triangles')steps=`<p>① 正方形面積：<br>${2*r} × ${2*r} = <b>${sNum(square)}</b> cm²</p><p>② 中間菱形面積：<br>${2*r} × ${2*r} ÷ 2 = <b>${sNum(diamond)}</b> cm²</p><p>③ 四個三角形 = 正方形 − 菱形</p>`;
+    $('answerContent').innerHTML=`${steps}<p class="math-result">陰影總面積 = ${sNum(seg)} cm²</p><p>每片面積 = ${sNum(seg)} ÷ 4 = <b>${sNum(seg/4)} cm²</b></p><p class="math-note">計算採用 π = 3.14，結果為近似值。四片全等，因此可以用總面積 ÷ 4。</p>`;
+  }
+  function initialize(){visualR=100+radius*5;setPieces();drawStatic();drawPieces();updateUI();}
+  function modeChange(newMode){mode=newMode;answerOpen=false;initialize();showToast(`已切換：${MODES[mode].short}`);}
+  function resetPiece(p){const orig=sourcePosition(p.id);Object.assign(p,orig,{flip:false,snapped:-1});updatePiece(p);}
+  function resetAll(){for(const p of pieces)resetPiece(p);selected=null;updateAllPieces();updateUI();showToast('紙片已回到原始位置');}
+  function selectPiece(p){selected=p.id;pieceLayer.appendChild(p.node);updateAllPieces();updateUI();}
+  function findSnap(p){if(p.flip||!nearZero(p.rot))return false;
+    let closest=null,minDistance=Infinity;
+    for(let i=0;i<SLOTS.length;i++){
+      if(pieces.some(o=>o!==p&&o.snapped===i))continue;
+      const d=Math.hypot(p.x-SLOTS[i].x,p.y-SLOTS[i].y);
+      if(d<minDistance){closest=i;minDistance=d;}
+    }
+    if(closest!==null&&minDistance<76){p.x=SLOTS[closest].x;p.y=SLOTS[closest].y;p.rot=0;p.snapped=closest;updatePiece(p);return true;}
+    return false;
+  }
+  function afterEdit(p){p.snapped=-1;const success=findSnap(p);updatePiece(p);updateUI();if(success){const n=pieces.filter(v=>v.snapped>=0).length;showToast(n===4?'全部完成！四片圖形都全等。':`第 ${p.id+1} 片已成功吸附！ ${n}/4`);}}
+  function rotateSelected(degree){if(selected===null)return;const p=pieces[selected];p.rot=normDeg(p.rot+degree);afterEdit(p);}
+  function flipSelected(){if(selected===null)return;const p=pieces[selected];p.flip=!p.flip;afterEdit(p);showToast(p.flip?'紙片已左右翻轉':'已恢復原本方向');}
+  function screenPoint(event){const matrix=svg.getScreenCTM();if(!matrix)return null;const point=svg.createSVGPoint();point.x=event.clientX;point.y=event.clientY;return point.matrixTransform(matrix.inverse());}
+  svg.addEventListener('pointerdown',e=>{
+    const element=e.target.closest('[data-piece]');if(!element||drag)return;
+    const p=pieces[Number(element.dataset.piece)],current=screenPoint(e);if(!current)return;
+    selectPiece(p);
+    drag={pointer:e.pointerId,id:p.id,startX:current.x,startY:current.y,baseX:p.x,baseY:p.y,moved:false};
+    svg.setPointerCapture(e.pointerId);e.preventDefault();
+  });
+  svg.addEventListener('pointermove',e=>{
+    if(!drag||drag.pointer!==e.pointerId)return;
+    const point=screenPoint(e);if(!point)return;
+    const p=pieces[drag.id];let dx=point.x-drag.startX,dy=point.y-drag.startY;
+    if(Math.hypot(dx,dy)>2)drag.moved=true;
+    if(!drag.moved)return;
+    p.x=Math.max(43,Math.min(1037,drag.baseX+dx));p.y=Math.max(98,Math.min(564,drag.baseY+dy));p.snapped=-1;
+    updatePiece(p);e.preventDefault();
+  });
+  function releasePointer(e){if(!drag||drag.pointer!==e.pointerId)return;
+    const p=pieces[drag.id],moved=drag.moved;drag=null;
+    try{if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);}catch(error){}
+    if(moved){afterEdit(p);}
+    else{updateUI();}
+    e.preventDefault();
+  }
+  svg.addEventListener('pointerup',releasePointer);
+  svg.addEventListener('pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){drag=null;updateUI();}});
+  // Prevent touch scrolling over the board, but let the surrounding page scroll on small screens.
+  svg.addEventListener('dragstart',e=>e.preventDefault());
+  document.querySelectorAll('[data-mode]').forEach(tab=>tab.addEventListener('click',()=>modeChange(tab.dataset.mode)));
+  $('rotateLeft').addEventListener('click',()=>rotateSelected(-90));$('quickLeft').addEventListener('click',()=>rotateSelected(-90));
+  $('rotateRight').addEventListener('click',()=>rotateSelected(90));$('quickRight').addEventListener('click',()=>rotateSelected(90));
+  $('flipBtn').addEventListener('click',flipSelected);
+  $('homeBtn').addEventListener('click',()=>{if(selected!==null){resetPiece(pieces[selected]);updateUI();showToast('紙片已放回原處');}});
+  $('scatterBtn').addEventListener('click',resetAll);
+  $('demoBtn').addEventListener('click',()=>{pieces.forEach((p,i)=>{p.x=SLOTS[i].x;p.y=SLOTS[i].y;p.rot=0;p.flip=false;p.snapped=i;updatePiece(p);});updateUI();showToast('示範完成：四塊全等紙片已排列在右側');});
+  $('answerBtn').addEventListener('click',()=>{answerOpen=!answerOpen;updateUI();});
+  $('radiusSlider').addEventListener('input',e=>{radius=Number(e.target.value);visualR=100+radius*5;initialize();});
+  $('gridToggle').addEventListener('change',e=>{showGrid=e.target.checked;drawStatic();drawPieces();updateUI();});
+  $('helpBtn').addEventListener('click',()=>{$('helpModal').classList.remove('hidden');$('closeHelp').focus();});
+  const closeModal=()=>{$('helpModal').classList.add('hidden');$('helpBtn').focus();};
+  $('closeHelp').addEventListener('click',closeModal);
+  $('helpModal').addEventListener('click',e=>{if(e.target===$('helpModal'))closeModal();});
+  $('fullscreenBtn').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else showToast('瀏覽器不支援全螢幕，可按 F11');}catch(e){showToast('請透過瀏覽器選單或 F11 切換全螢幕');}});
+  document.addEventListener('fullscreenchange',()=>{$('fullscreenBtn').textContent=document.fullscreenElement?'⛶ 結束全螢幕':'⛶ 全螢幕教學';});
+  document.addEventListener('keydown',e=>{
+    if(!$('helpModal').classList.contains('hidden')){if(e.key==='Escape')closeModal();return;}
+    if(e.target instanceof HTMLInputElement)return;
+    if(e.key==='ArrowLeft'){rotateSelected(-90);e.preventDefault();}
+    else if(e.key==='ArrowRight'){rotateSelected(90);e.preventDefault();}
+    else if(e.key==='Delete'||e.key==='Backspace'){if(selected!==null){resetPiece(pieces[selected]);updateUI();}e.preventDefault();}
+    else if(e.key==='Escape'){selected=null;updateAllPieces();updateUI();}
+  });
+  initialize();
+})();
+</script>
+</body>
+</html>
